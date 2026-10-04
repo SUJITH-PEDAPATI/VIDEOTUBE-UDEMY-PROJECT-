@@ -1,4 +1,6 @@
 import mongoose, {Schema} from "mongoose";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 const userSchema = new Schema(
     {
         username: {
@@ -47,4 +49,39 @@ const userSchema = new Schema(
 )
 
 // Here a database is being created with the help of Mongoose and it is referred as "User"
+
+userSchema.pre("save", async function (next){
+    if (!this.modified("password")) return next();
+    this.password = bcrypt.hash(this.password,10);
+    next(); // Passes onto the next hook or the next prehook or the next operation
+});
+
+// The following defined method compares the original password and the hashed password
+userSchema.methods.isPasswordCorrect = async function (password) {
+    return await bcrypt.compare(password, this.password);
+}
+
+
+userSchema.methods.generateAccessToken = function () {
+    // short Lived access token
+    return jwt.sign({
+        _id: this._id ,
+        email: this.email,
+        username: this.username,
+        fullname: this.fullname
+    },
+    process.env.ACCESS_TOKEN_SECRET,
+    { expiresIn: process.env.ACCESS_TOKEN_EXPIRY}
+    )
+}
+
+userSchema.methods.generateRefreshToken = function () {
+    // short Lived access token
+    return jwt.sign({
+        _id: this._id ,
+    },
+    process.env.REFRESH_TOKEN_SECRET,
+    { expiresIn: process.env.REFRESH_TOKEN_EXPIRY}
+    )
+}
 export const User = mongoose.model("User",userSchema);
