@@ -3,14 +3,18 @@ import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
 const subscriptionSchema = new Schema(
     {
-        channel: {
-            type: mongoose.Types.ObjectId,
-            ref: "User"
-        },
-        subscriber: {
-            type: mongoose.Types.ObjectId,
-            ref: "User"
-        }
+        channel: [
+            {
+                type: mongoose.Types.ObjectId,
+                ref: "User"
+            }
+        ],
+        subscriber: [
+            {
+                type: mongoose.Types.ObjectId,
+                ref: "User"
+            }
+        ]
     },
     {timestamps: true}
 )
