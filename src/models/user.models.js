@@ -51,7 +51,7 @@ const userSchema = new Schema(
 // Here a database is being created with the help of Mongoose and it is referred as "User"
 
 userSchema.pre("save", async function (next){
-    if (!this.modified("password")) return next();
+    if (!this.isModified("password")) return next();
     this.password = bcrypt.hash(this.password,10);
     next(); // Passes onto the next hook or the next prehook or the next operation
 });
